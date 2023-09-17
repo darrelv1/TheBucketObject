@@ -1,3 +1,7 @@
+from bucket import Buckets
+from bucket import bills
+
+
 # This is a sample Python script.
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -12,5 +16,21 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
+
+
+#activity
+
+mainbucket = Buckets("main_expenses", "type")
+mainbucket.expenses = bills
+print(f"From the getFloatingBalance(): {mainbucket.getFloatingBalance()}")
+print(f"balance_contrib: {mainbucket.balance_contrib}")
+print(f"balance_post_contrib: {mainbucket.balance_post_contrib}")
+print(f"balance: {mainbucket.balance}")
+print(f"bal_to_pay: {mainbucket.bal_to_pay}")
+print(f"balance_contrib: {mainbucket.balance_contrib}")
+
+
+
+#What is the matter with everyone and there bad news i can't believe that
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

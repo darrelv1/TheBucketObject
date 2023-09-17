@@ -1,5 +1,5 @@
 from datetime import date, datetime, timedelta
-from types import *
+from bucket_types import *
 import calendar as cal
 from base import BucketComponent
 

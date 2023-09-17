@@ -3,6 +3,9 @@ from functools import reduce
 from datetime import datetime, timedelta
 from datetime import datetime, date
 from helpers import reduce_decorator
+from Installment import Installment
+from Expense import Expense
+from bucket_types import *
 
 
 bills = [
@@ -73,12 +76,7 @@ bills = [
 """
 Generic Accounts that will have specific behaviours and properties to address
 the current problems faced with personal budgeting
-
 """
-
-
-
-
 class Buckets:
     current_month: int = date.today().month
     bi_weekly: timedelta = timedelta(days=14)
@@ -113,7 +111,7 @@ class Buckets:
                     'amount': ele.amount,
                     'due_date': ele.due_date,
                     'next_contribution': nextcontribution_day,
-                    'floating balance' : floatingbalance,
+                    'floating balance': floatingbalance,
                     'amount after contribution': ele.amount_after_contributions,
                     'contributions_amount': ele.contributed_amount,
                     'monthly_pay_periods' : ele.installment['monthly_pay_periods']
@@ -147,9 +145,9 @@ class Buckets:
     @property
     def expenses(self) -> list[Expense]:
         self.call_expenses()
-        [print(" Name: {}\n Amount: {}\n Days left: {}\n Due: {}\n DueDate: {}\n payment_status: {}\n\n".format(
-            exp.expense_name, exp.amount, exp.days_left, exp.due, exp.due_date, exp.payment_status)) for exp in
-            self._expenses]
+        # [print(" Name: {}\n Amount: {}\n Days left: {}\n Due: {}\n DueDate: {}\n payment_status: {}\n\n".format(
+        #     exp.expense_name, exp.amount, exp.days_left, exp.due, exp.due_date, exp.payment_status)) for exp in
+        #     self._expenses]
         return self._expenses
 
     @expenses.setter
@@ -166,7 +164,7 @@ class Buckets:
                 raise KeyError(f"{index} is either not found not implemented")
         elif isinstance(index, int):
             if index < len(self._expenses):
-                print(f"testing __getitem__ {len(self._expenses)}")
+
                 return self._expenses[index]
             else:
                 raise IndexError
@@ -182,11 +180,11 @@ class Buckets:
 
     def withdraw(self, money: float):
         self.balance -= money
-        print(f"Withdraw Occur, new balance ${self.balance}")
+
 
     def deposit(self, money: float):
         self.balance += money
-        print(f"Withdraw Occur, new balance ${self.balance}")
+
 
     def get_unpaid(self, amount=True):
         return [exp.amount if amount else exp for exp in self if (exp.due == True) & (exp.payment_status != "Paid")]

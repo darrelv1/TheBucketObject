@@ -1,5 +1,5 @@
 from abc import ABC
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 
 class BucketComponent(ABC):

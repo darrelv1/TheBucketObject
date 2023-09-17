@@ -1,6 +1,7 @@
-from types import *
+from bucket_types import *
 from datetime import date, datetime
 import calendar as cal
+from Installment import Installment
 from base import BucketComponent
 
 
@@ -37,15 +38,13 @@ class Expense(BucketComponent):
     @property
     def contributed_amount(self):
         payment_details = self._installment
-        print(f" BEFORE {self.expense_name} self.installment in contributed amount {self._installment}")
+
         if len(payment_details.items()) == 0:
             self._contributed_amount = self.amount
             return self._contributed_amount
         else:
             self._contributed_amount = payment_details['contributions'] * (
                         self.amount / payment_details['monthly_pay_periods'])
-            print(f"AFTER {self.expense_name}self.installment in contributed amount {self._installment}")
-
             return self._contributed_amount
 
     @property
