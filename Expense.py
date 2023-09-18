@@ -26,7 +26,17 @@ class Expense(BucketComponent):
         self._installment: InstallmentType = {}
 
     def __str__(self):
-        return self.expense_name
+
+        expense_details = (f"Expense Name: {self.expense_name}"
+                           f", Due Date: {self.due_date},Contributed Amount: {self._contributed_amount} "
+                           f",Due: {self.due} "
+                           f", Due date: {self.due_date} "
+                           f", Amount After Contributions: {self.due_date} "
+                           f", Current Month Contributions: {self._currmonth_contributions} "
+                           f", Days left: {self.due} "
+                           f", Days left: {self.days_left} "
+                           )
+        return expense_details
 
     # Working in Progress
     @property
@@ -38,24 +48,27 @@ class Expense(BucketComponent):
     @property
     def contributed_amount(self):
         payment_details = self._installment
-
         if len(payment_details.items()) == 0:
             self._contributed_amount = self.amount
+            # print(f"INSIDE THE contributed amount TRUE {self._contributed_amount}")
             return self._contributed_amount
         else:
             self._contributed_amount = payment_details['contributions'] * (
                         self.amount / payment_details['monthly_pay_periods'])
+            # print(f"{self.expense_name}INSIDE THE contributed amount TRUE {self._contributed_amount}")
             return self._contributed_amount
 
     @property
     def amount_after_contributions(self):
         self._amount_after_contributions = self.amount - self._contributed_amount
-        return self.amount - self._contributed_amount
+        # print(f" amount AFTER contributing testing {self.amount - self._contributed_amount}")
+        print(f"contributed amount testing { self._contributed_amount}")
+        return self._amount_after_contributions
 
     @property
     def installment(self):
         install_insta = Installment()
-        new = install_insta.get_result(date(2023, 7, 27))
+        new = install_insta.get_result(date(2023, 7,27))
         self._installment = {**self._installment, **new}
         return self._installment
 
@@ -100,7 +113,6 @@ class Expense(BucketComponent):
 
     def to_dict(self):
         return {
-
             'expense_name': self.expense_name,
             'amount': self.amount,
             'due_date': self.due_date,
