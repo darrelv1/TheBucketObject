@@ -8,6 +8,22 @@ from base import BucketComponent
 class Expense(BucketComponent):
     hora: datetime = datetime.today()
 
+    # Resolve the state of expenses properties
+    def call_all_properties(self):
+        return [(
+            self.expense_name
+            , self.installment
+            , self.amount
+            , self.due_date
+            , self.frequency
+            , self.contributed_amount
+            , self.amount_after_contributions
+            , self.payment_status
+            , self.currmonth_contributions
+            , self.due
+            , self.days_left
+        )]
+
     def __init__(self, data: ExpenseType):
 
         self.data: ExpenseType = data
@@ -15,15 +31,17 @@ class Expense(BucketComponent):
         self.amount: float = data['details']['amount']
         self.due_date: int = data['details']['due_date']
         self._frequency: str = data['details']['frequency']
-        self._contributed_amount: float = 0.00
+        self._installment: InstallmentType = {}
+        self._contributed_amount: float = self.contributed_amount
         self._amount_after_contributions: float = 0.00
         self.payment_status: str = "Not Paid"
         self._currmonth_contributions: list[date] = []
-
+        self.expected_floating_balance = 0
         # Internal Variable
         self.due = False
         self.days_left = self.due_date - Expense.hora.day if Expense.hora.day < self.due_date else None
-        self._installment: InstallmentType = {}
+        self.call_all_properties()
+
 
     def __str__(self):
 
@@ -31,10 +49,11 @@ class Expense(BucketComponent):
                            f", Due Date: {self.due_date},Contributed Amount: {self._contributed_amount} "
                            f",Due: {self.due} "
                            f", Due date: {self.due_date} "
-                           f", Amount After Contributions: {self.due_date} "
+                           f", Amount After Contributions: {self.amount_after_contributions} "
                            f", Current Month Contributions: {self._currmonth_contributions} "
                            f", Days left: {self.due} "
                            f", Days left: {self.days_left} "
+                           f", # Contributions: { self._installment['contributions'] if len(self._installment.items()) > 0 else 'Not Available'}"
                            )
         return expense_details
 
@@ -54,7 +73,7 @@ class Expense(BucketComponent):
             return self._contributed_amount
         else:
             self._contributed_amount = payment_details['contributions'] * (
-                        self.amount / payment_details['monthly_pay_periods'])
+                    self.amount / payment_details['monthly_pay_periods'])
             # print(f"{self.expense_name}INSIDE THE contributed amount TRUE {self._contributed_amount}")
             return self._contributed_amount
 
@@ -62,13 +81,13 @@ class Expense(BucketComponent):
     def amount_after_contributions(self):
         self._amount_after_contributions = self.amount - self._contributed_amount
         # print(f" amount AFTER contributing testing {self.amount - self._contributed_amount}")
-        print(f"contributed amount testing { self._contributed_amount}")
+        print(f"contributed amount testing {self._contributed_amount}")
         return self._amount_after_contributions
 
     @property
     def installment(self):
         install_insta = Installment()
-        new = install_insta.get_result(date(2023, 7,27))
+        new = install_insta.get_result(date(2023, 7, 27))
         self._installment = {**self._installment, **new}
         return self._installment
 

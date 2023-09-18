@@ -30,9 +30,15 @@ mainbucket.expenses = bills
 #
 # print(f"From the getFloatingBalance(): {mainbucket.getFloatingBalance()}")
 # print(f"amount after contributions main.py {mainbucket.expenses[0].amount_after_contributions}")
+# print(f"{mainbucket.expenses[0].installment['contributions_list']}")
+# print(f"{mainbucket.expenses[0].installment['payperiods']}")
+# # for exp in mainbucket:
+# #     print((exp))
 
-for exp in mainbucket:
-    print(exp)
+
+print(mainbucket.current_floating_balance)
+
+
 
 #What is the matter with everyone and there bad news i can't believe that
 

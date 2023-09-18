@@ -6,8 +6,20 @@ from helpers import reduce_decorator
 from Installment import Installment
 from Expense import Expense
 from bucket_types import *
+from functools import reduce
 
 bills = [
+
+    {
+        'expense': 'Apple iCloud Subscription',
+        'details': {
+            'amount': 12.99,
+            'due_date': 1,
+            'frequency': 'Monthly'
+
+        }
+
+    },
     {
         'expense': 'Fido Bill',
         'details': {
@@ -18,16 +30,16 @@ bills = [
         }
 
     },
-    {
-        'expense': 'Rent',
-        'details': {
-            'amount': 1500,
-            'due_date': 15,
-            'frequency': 'Monthly'
+{
+            'expense': 'Rent',
+            'details': {
+                'amount': 3000,
+                'due_date': 15,
+                'frequency': 'Monthly'
 
-        }
+            }
 
-    },
+        },
 
     {
         'expense': "Gilson's Debt",
@@ -93,6 +105,8 @@ class Buckets:
         self._bal_to_pay: float | None = 0.00
         self._balance_contrib: float = 0.00  # Amount that has been placed into account
         self._balance_post_contrib: float = 0.00  # Bucket amount after contribution/(placed away
+        self._current_floating_balance = 0.00
+        self._floating_balance = 0.00
 
     def __iter__(self):
         yield from self._expenses
@@ -101,43 +115,74 @@ class Buckets:
         self._balance = reduce(lambda x, y: x + y.amount, self._expenses, 0.00)
         for i in self._expenses:
             i()
-
-    def getFloatingBalance(self) -> float:
+    """
+    Floating Balance: 
+        An amount that account can never drop below or has to deposited into the bucket so it can keep everything a float
+        
+        Process was to iterate thorugh all the expenses and get all the payperiods for the month and compare then to thier respective due dates.
+        if due date is before the all contribution then the amount contributed amount that was would be missing gets added to the floating amount. 
+        contributed amount is not all calculate by basis of 2 on the account that some months have more than two pay periods so we used the expenses'
+        monthly_pay_periods from installment class to cover that use case
+        
+    Current Floating Balance:
+    
+        Same as the floating balance except this is based on the contributions already made -  thus the current date. So, if we're on the 15th of the month and 
+        the due date is on the 7th for an expense but, the next contribution wont be for the 21st - that means the floating amount will be 1 contribution left because we already made .
+    """
+    @property
+    def current_floating_balance(self) -> float:
         self.call_expenses()
-        floatingbalance: float = 0.00
-        expensesList: list[dict] = []
-        for ele in self._expenses:
+        return_obj: list[dict] = []
+        for expense in self._expenses:
+            floatingbalance: float = 0.00
             ele_container = {}
             # is the next expense contributions before the the expense's due date?
 
             # Isolated current month's contributions dates only and, found out which date is next by the contributions already made to date
-            index = ele.installment['contributions']
-            nextcontribution_day: int = ele.currmonth_contributions[index].day
-            # print(f" list of the current contributions{ele.currmonth_contributions}")
+            index = expense.installment['contributions']
+            nextcontribution_day: int = expense.currmonth_contributions[index].day
 
-            if ele.due_date > nextcontribution_day:
-                floatingbalance += ele.amount_after_contributions
-                ele_container = {
-                    'expense': ele.expense_name,
-                    'amount': ele.amount,
-                    'due_date': ele.due_date,
-                    '# of contributions': ele.installment['contributions'],
-                    'next_contribution': nextcontribution_day,
-                    'floating balance': floatingbalance,
-                    'amount after contribution': ele.amount_after_contributions,
-                    'contributions_amount': ele.contributed_amount,
-                    'monthly_pay_periods': ele.installment['monthly_pay_periods']
-                }
-                expensesList.append(ele_container)
+            if expense.due_date < nextcontribution_day:
+                floatingbalance += expense.amount_after_contributions
 
-        return expensesList
+            obj = {
+                expense.expense_name: expense.currmonth_contributions[index],
+                'index': index,
+                'due_date': expense.due_date,
+                'current_floating_balance': floatingbalance
+            }
+            print(obj)
+            return_obj = [*return_obj, obj]
 
+        pending_amounts = [obj['current_floating_balance'] for obj in return_obj]
+        self._current_floating_balance = reduce(lambda x, y: x + y, pending_amounts, 0.00)
+        return self._current_floating_balance
+    @property
+    def floating_balance(self):
+        return_obj = []
+        for expense in self.expenses:
+            contributions_list = expense.installment['payperiods']
+            pending_dates = [pp for pp in contributions_list if
+                             pp.month == date.today().month and expense.due_date < pp.day]
+            pending_amount = len(pending_dates) * (expense.amount/ expense.installment['monthly_pay_periods'])
+
+            obj = {
+                expense.expense_name: pending_dates,
+                'floating_balance': pending_amount
+            }
+            return_obj = [*return_obj, obj]
+            expense.expected_floating_balance = return_obj
+        pending_amounts = [x['floating_balance'] for x in return_obj]
+        self._floating_balance = reduce(lambda x, y: x + y, pending_amounts, 0.00)
+        print(return_obj)
+        return self._floating_balance
 
     @property
     def balance_contrib(self):
         self.call_expenses()
         result = [exp.contributed_amount for exp in self._expenses]
         self._balance_contrib = reduce(lambda x, y: x + y, result, 0.00)
+
         return self._balance_contrib
 
     @property
@@ -153,6 +198,7 @@ class Buckets:
     @property
     def expenses(self) -> list[Expense]:
         self.call_expenses()
+
         # [print(" Name: {}\n Amount: {}\n Days left: {}\n Due: {}\n DueDate: {}\n payment_status: {}\n\n".format(
         #     exp.expense_name, exp.amount, exp.days_left, exp.due, exp.due_date, exp.payment_status)) for exp in
         #     self._expenses]
@@ -163,6 +209,7 @@ class Buckets:
         expense_collection = [Expense(exp_Item) for exp_Item in newExp]
         newdict = [*self._expenses, *expense_collection]
         self._expenses = newdict
+        # [exp_item.call_all_properties() for exp_item in self._expenses]
 
     def __getitem__(self, index: int | str) -> Expense | None:
         if isinstance(index, str):
