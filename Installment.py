@@ -16,6 +16,7 @@ class Installment(BucketComponent):
         self.monthly_pay_periods: int | None = 0
         self.total_pay_periods: int | None = 0
 
+
     def getPeriods(self):
 
         active = Installment.active_date
@@ -48,3 +49,5 @@ class Installment(BucketComponent):
             'monthly_pay_periods': self.monthly_pay_periods,
             'payperiods': self.payperiods
         }
+
+

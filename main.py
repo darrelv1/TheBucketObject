@@ -22,12 +22,21 @@ if __name__ == '__main__':
 
 mainbucket = Buckets("main_expenses", "type")
 mainbucket.expenses = bills
-print(f"From the getFloatingBalance(): {mainbucket.getFloatingBalance()}")
-print(f"balance_contrib: {mainbucket.balance_contrib}")
-print(f"balance_post_contrib: {mainbucket.balance_post_contrib}")
-print(f"balance: {mainbucket.balance}")
-print(f"bal_to_pay: {mainbucket.bal_to_pay}")
-print(f"balance_contrib: {mainbucket.balance_contrib}")
+# print(f"balance_contrib: {mainbucket.balance_contrib}")
+# print(f"balance_post_contrib: {mainbucket.balance_post_contrib}")
+# print(f"balance: {mainbucket.balance}")
+# print(f"bal_to_pay: {mainbucket.bal_to_pay}")
+# print(f"balance_contrib: {mainbucket.balance_contrib}")
+#
+# print(f"From the getFloatingBalance(): {mainbucket.getFloatingBalance()}")
+# print(f"amount after contributions main.py {mainbucket.expenses[0].amount_after_contributions}")
+# print(f"{mainbucket.expenses[0].installment['contributions_list']}")
+# print(f"{mainbucket.expenses[0].installment['payperiods']}")
+# # for exp in mainbucket:
+# #     print((exp))
+
+
+print(mainbucket.current_floating_balance)
 
 
 
